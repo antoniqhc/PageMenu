@@ -47,14 +47,15 @@ class MenuItemView: UIView {
         self.addSubview(menuItemSeparator!)
         
         if let image = imageName {
-            titleImage = UIImageView(frame: CGRect(x: 0.0, y: 0.0, width: menuItemWidth, height: menuScrollViewHeight - indicatorHeight))
+            titleImage = UIImageView(frame: CGRect(x: 20.0, y: 8.0, width: menuItemWidth - 40, height: menuScrollViewHeight - indicatorHeight - 24))
             titleImage?.image = UIImage(named: image)
             self.addSubview(titleImage!)
-
-        } else {
-            self.addSubview(titleLabel!)
+            
+            titleLabel = UILabel(frame: CGRect(x: 8.0, y: menuScrollViewHeight - 20, width: menuItemWidth - 16, height: 20))
 
         }
+        self.addSubview(titleLabel!)
+
     }
     
     func setTitleText(_ text: NSString) {
