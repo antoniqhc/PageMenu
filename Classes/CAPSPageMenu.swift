@@ -31,9 +31,10 @@ class MenuItemView: UIView {
     
     var titleLabel : UILabel?
     var menuItemSeparator : UIView?
-    var titleImage: UIImageView?
+    var titleImage : UIImageView?
+    var smallLabel : UILabel?
     
-    func setUpMenuItemView(_ menuItemWidth: CGFloat, menuScrollViewHeight: CGFloat, indicatorHeight: CGFloat, separatorPercentageHeight: CGFloat, separatorWidth: CGFloat, separatorRoundEdges: Bool, menuItemSeparatorColor: UIColor, imageName: String?, menuItemFrameToBottomMargin: CGFloat, imageViewOffset: CGFloat, labelOffset: CGFloat, topMenuOffset: CGFloat, labelHeight: CGFloat) {
+    func setUpMenuItemView(_ menuItemWidth: CGFloat, menuScrollViewHeight: CGFloat, indicatorHeight: CGFloat, separatorPercentageHeight: CGFloat, separatorWidth: CGFloat, separatorRoundEdges: Bool, menuItemSeparatorColor: UIColor, imageName: String?, menuItemFrameToBottomMargin: CGFloat, imageViewOffset: CGFloat, labelOffset: CGFloat, topMenuOffset: CGFloat, labelHeight: CGFloat, addBadgeView: Bool, smallLabelSize: CGFloat) {
         titleLabel = UILabel(frame: CGRect(x: 0.0, y: 0.0, width: menuItemWidth, height: menuScrollViewHeight - indicatorHeight))
         
         menuItemSeparator = UIView(frame: CGRect(x: menuItemWidth - (separatorWidth / 2), y: floor(menuScrollViewHeight * ((1.0 - separatorPercentageHeight) / 2.0)), width: separatorWidth, height: floor(menuScrollViewHeight * separatorPercentageHeight)))
@@ -52,7 +53,19 @@ class MenuItemView: UIView {
             self.addSubview(titleImage!)
             
             titleLabel = UILabel(frame: CGRect(x: labelOffset, y: menuScrollViewHeight - labelHeight - 4 - menuItemFrameToBottomMargin, width: menuItemWidth - 2 * labelOffset, height: labelHeight))
+            
+            smallLabel = UILabel(frame: CGRect(x: menuItemWidth - 2*imageViewOffset - smallLabelSize, y: 0, width: smallLabelSize, height: smallLabelSize))
+            smallLabel?.layer.cornerRadius = smallLabelSize / 2
+            smallLabel?.layer.masksToBounds = true
+            smallLabel?.backgroundColor = UIColor.white
+            smallLabel?.textAlignment = .center
+            smallLabel?.text = "0"
+            
+            if addBadgeView {
+                titleImage?.addSubview(smallLabel!)
+            }
         }
+        
         self.addSubview(titleLabel!)
         
     }
@@ -92,6 +105,12 @@ public enum CAPSPageMenuOption {
     case centerMenuItems(Bool)
     case hideTopMenuBar(Bool)
     case menuItemFrameToBottomMargin(CGFloat)
+    case imageViewOffset(CGFloat)
+    case labelOffset(CGFloat)
+    case labelHeight(CGFloat)
+    case addBadgeView(Bool)
+    case smallLabelSize(CGFloat)
+    
 }
 
 open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecognizerDelegate {
@@ -144,6 +163,8 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
     open var labelOffset: CGFloat = 8.0
     open var topMenuOffset: CGFloat = 8.0
     open var labelHeight: CGFloat = 20.0
+    open var addBadgeView: Bool = true
+    open var smallLabelSize: CGFloat = 15.0
     
     var currentOrientationIsPortrait : Bool = true
     var pageIndexForOrientationChange : Int = 0
@@ -241,6 +262,16 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     hideTopMenuBar = value
                 case let .menuItemFrameToBottomMargin(value):
                     menuItemFrameToBottomMargin = value
+                case let .imageViewOffset(value):
+                    imageViewOffset = value
+                case let .labelOffset(value):
+                    labelOffset = value
+                case let .labelHeight(value):
+                    labelHeight = value
+                case let .addBadgeView(value):
+                    addBadgeView = value
+                case let .smallLabelSize(value):
+                    smallLabelSize = value
                 }
             }
             
@@ -423,13 +454,13 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                 if menuItemMargin > 0 {
                     let marginSum = menuItemMargin * CGFloat(controllerArray.count + 1)
                     let menuItemWidth = (self.view.frame.width - marginSum) / CGFloat(controllerArray.count)
-                    menuItemView.setUpMenuItemView(menuItemWidth, menuScrollViewHeight: menuHeight, indicatorHeight: selectionIndicatorHeight, separatorPercentageHeight: menuItemSeparatorPercentageHeight, separatorWidth: menuItemSeparatorWidth, separatorRoundEdges: menuItemSeparatorRoundEdges, menuItemSeparatorColor: menuItemSeparatorColor, imageName: currentIconName, menuItemFrameToBottomMargin: menuItemFrameToBottomMargin, imageViewOffset: imageViewOffset, labelOffset: labelOffset, topMenuOffset: topMenuOffset, labelHeight: labelHeight)
+                    menuItemView.setUpMenuItemView(menuItemWidth, menuScrollViewHeight: menuHeight, indicatorHeight: selectionIndicatorHeight, separatorPercentageHeight: menuItemSeparatorPercentageHeight, separatorWidth: menuItemSeparatorWidth, separatorRoundEdges: menuItemSeparatorRoundEdges, menuItemSeparatorColor: menuItemSeparatorColor, imageName: currentIconName, menuItemFrameToBottomMargin: menuItemFrameToBottomMargin, imageViewOffset: imageViewOffset, labelOffset: labelOffset, topMenuOffset: topMenuOffset, labelHeight: labelHeight, addBadgeView: addBadgeView, smallLabelSize: smallLabelSize)
                 } else {
-                    menuItemView.setUpMenuItemView(CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), menuScrollViewHeight: menuHeight, indicatorHeight: selectionIndicatorHeight, separatorPercentageHeight: menuItemSeparatorPercentageHeight, separatorWidth: menuItemSeparatorWidth, separatorRoundEdges: menuItemSeparatorRoundEdges, menuItemSeparatorColor: menuItemSeparatorColor, imageName: currentIconName, menuItemFrameToBottomMargin: menuItemFrameToBottomMargin, imageViewOffset: imageViewOffset, labelOffset: labelOffset, topMenuOffset: topMenuOffset, labelHeight: labelHeight)
+                    menuItemView.setUpMenuItemView(CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), menuScrollViewHeight: menuHeight, indicatorHeight: selectionIndicatorHeight, separatorPercentageHeight: menuItemSeparatorPercentageHeight, separatorWidth: menuItemSeparatorWidth, separatorRoundEdges: menuItemSeparatorRoundEdges, menuItemSeparatorColor: menuItemSeparatorColor, imageName: currentIconName, menuItemFrameToBottomMargin: menuItemFrameToBottomMargin, imageViewOffset: imageViewOffset, labelOffset: labelOffset, topMenuOffset: topMenuOffset, labelHeight: labelHeight, addBadgeView: addBadgeView, smallLabelSize: smallLabelSize)
                 }
                 //**************************拡張ここまで*************************************
             } else {
-                menuItemView.setUpMenuItemView(menuItemWidth, menuScrollViewHeight: menuHeight, indicatorHeight: selectionIndicatorHeight, separatorPercentageHeight: menuItemSeparatorPercentageHeight, separatorWidth: menuItemSeparatorWidth, separatorRoundEdges: menuItemSeparatorRoundEdges, menuItemSeparatorColor: menuItemSeparatorColor, imageName: currentIconName, menuItemFrameToBottomMargin: menuItemFrameToBottomMargin, imageViewOffset: imageViewOffset, labelOffset: labelOffset, topMenuOffset: topMenuOffset, labelHeight: labelHeight)
+                menuItemView.setUpMenuItemView(menuItemWidth, menuScrollViewHeight: menuHeight, indicatorHeight: selectionIndicatorHeight, separatorPercentageHeight: menuItemSeparatorPercentageHeight, separatorWidth: menuItemSeparatorWidth, separatorRoundEdges: menuItemSeparatorRoundEdges, menuItemSeparatorColor: menuItemSeparatorColor, imageName: currentIconName, menuItemFrameToBottomMargin: menuItemFrameToBottomMargin, imageViewOffset: imageViewOffset, labelOffset: labelOffset, topMenuOffset: topMenuOffset, labelHeight: labelHeight, addBadgeView: addBadgeView, smallLabelSize: smallLabelSize)
             }
             
             // Configure menu item label font if font is set by user
@@ -766,6 +797,20 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
         }
     }
     
+    
+    open func changeValueForItemAtIndex(index: Int, value: String) {
+        guard menuItems.count > index else{
+            return
+        }
+        menuItems[index].smallLabel?.text = value
+    }
+    
+    open func badgeViewVisibalityAtIndex(index: Int, isHidden: Bool){
+        guard menuItems.count > index else{
+            return
+        }
+        menuItems[index].smallLabel?.isHidden = isHidden
+    }
     
     // MARK: - Tap gesture recognizer selector
     
