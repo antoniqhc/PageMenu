@@ -50,16 +50,18 @@ class MenuItemView: UIView {
         if let image = imageName {
             titleImage = UIImageView(frame: CGRect(x: imageViewOffset, y: topMenuOffset, width: menuItemWidth - 2*imageViewOffset, height: menuScrollViewHeight - indicatorHeight - labelHeight - topMenuOffset - menuItemFrameToBottomMargin))
             titleImage?.image = UIImage(named: image)
+            titleImage?.contentMode = .scaleAspectFit
             self.addSubview(titleImage!)
             
             titleLabel = UILabel(frame: CGRect(x: labelOffset, y: menuScrollViewHeight - labelHeight - 4 - menuItemFrameToBottomMargin, width: menuItemWidth - 2 * labelOffset, height: labelHeight))
             
-            smallLabel = UILabel(frame: CGRect(x: menuItemWidth - 2*imageViewOffset - smallLabelSize, y: 0, width: smallLabelSize, height: smallLabelSize))
+            smallLabel = UILabel(frame: CGRect(x: menuItemWidth - imageViewOffset - smallLabelSize - 0.25 * (menuItemWidth - 2*imageViewOffset), y: 0, width: smallLabelSize, height: smallLabelSize))
             smallLabel?.layer.cornerRadius = smallLabelSize / 2
             smallLabel?.layer.masksToBounds = true
             smallLabel?.backgroundColor = UIColor.white
             smallLabel?.textAlignment = .center
             smallLabel?.text = "0"
+            smallLabel?.font = UIFont.systemFont(ofSize: 11)
             
             if addBadgeView {
                 titleImage?.addSubview(smallLabel!)
@@ -106,6 +108,7 @@ public enum CAPSPageMenuOption {
     case hideTopMenuBar(Bool)
     case menuItemFrameToBottomMargin(CGFloat)
     case imageViewOffset(CGFloat)
+    case topMenuOffset(CGFloat)
     case labelOffset(CGFloat)
     case labelHeight(CGFloat)
     case addBadgeView(Bool)
@@ -164,7 +167,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
     open var topMenuOffset: CGFloat = 8.0
     open var labelHeight: CGFloat = 20.0
     open var addBadgeView: Bool = true
-    open var smallLabelSize: CGFloat = 15.0
+    open var smallLabelSize: CGFloat = 20.0
     
     var currentOrientationIsPortrait : Bool = true
     var pageIndexForOrientationChange : Int = 0
@@ -272,6 +275,8 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     addBadgeView = value
                 case let .smallLabelSize(value):
                     smallLabelSize = value
+                case let .topMenuOffset(value):
+                    topMenuOffset = value
                 }
             }
             
@@ -442,9 +447,9 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                         startingMenuMargin = 0.0
                     }
                     
-                    menuItemFrame = CGRect(x: startingMenuMargin + menuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin)
+                    menuItemFrame = CGRect(x: startingMenuMargin + menuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - 1.5*menuItemFrameToBottomMargin)
                 } else {
-                    menuItemFrame = CGRect(x: menuItemWidth * index + menuMargin * (index + 1) + startingMenuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin)
+                    menuItemFrame = CGRect(x: menuItemWidth * index + menuMargin * (index + 1) + startingMenuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - 1.5*menuItemFrameToBottomMargin)
                 }
             }
             
