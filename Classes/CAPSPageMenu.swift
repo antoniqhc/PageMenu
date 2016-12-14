@@ -33,6 +33,7 @@ class MenuItemView: UIView {
     var menuItemSeparator : UIView?
     var titleImage : UIImageView?
     var smallLabel : UILabel?
+    var bottomArrowImage : UIImageView?
     
     func setUpMenuItemView(_ menuItemWidth: CGFloat, menuScrollViewHeight: CGFloat, indicatorHeight: CGFloat, separatorPercentageHeight: CGFloat, separatorWidth: CGFloat, separatorRoundEdges: Bool, menuItemSeparatorColor: UIColor, imageName: String?, menuItemFrameToBottomMargin: CGFloat, imageViewOffset: CGFloat, labelOffset: CGFloat, topMenuOffset: CGFloat, labelHeight: CGFloat, addBadgeView: Bool, smallLabelSize: CGFloat) {
         titleLabel = UILabel(frame: CGRect(x: 0.0, y: 0.0, width: menuItemWidth, height: menuScrollViewHeight - indicatorHeight))
@@ -113,6 +114,8 @@ public enum CAPSPageMenuOption {
     case labelHeight(CGFloat)
     case addBadgeView(Bool)
     case smallLabelSize(CGFloat)
+    case extraBottomViewSize(CGFloat)
+    case shouldAddButtonViewIcon(Bool)
     
 }
 
@@ -168,6 +171,8 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
     open var labelHeight: CGFloat = 20.0
     open var addBadgeView: Bool = true
     open var smallLabelSize: CGFloat = 20.0
+    open var extraBottomViewSize: CGFloat = 0.0
+    open var shouldAddButtonViewIcon: Bool = false
     
     var currentOrientationIsPortrait : Bool = true
     var pageIndexForOrientationChange : Int = 0
@@ -277,6 +282,10 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     smallLabelSize = value
                 case let .topMenuOffset(value):
                     topMenuOffset = value
+                case let .extraBottomViewSize(value):
+                    extraBottomViewSize = value
+                case let .shouldAddButtonViewIcon(value):
+                    shouldAddButtonViewIcon = value
                 }
             }
             
@@ -369,6 +378,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
     }
     
     func configureUserInterface() {
+        
         // Add tap gesture recognizer to controller scroll view to recognize menu item selection
         let menuItemTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(CAPSPageMenu.handleMenuItemTap(_:)))
         menuItemTapGestureRecognizer.numberOfTapsRequired = 1
@@ -421,9 +431,9 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                 if menuItemMargin > 0 {
                     let marginSum = menuItemMargin * CGFloat(controllerArray.count + 1)
                     let menuItemWidth = (self.view.frame.width - marginSum) / CGFloat(controllerArray.count)
-                    menuItemFrame = CGRect(x: CGFloat(menuItemMargin * (index + 1)) + menuItemWidth * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin)
+                    menuItemFrame = CGRect(x: CGFloat(menuItemMargin * (index + 1)) + menuItemWidth * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin * 2)
                 } else {
-                    menuItemFrame = CGRect(x: self.view.frame.width / CGFloat(controllerArray.count) * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin)
+                    menuItemFrame = CGRect(x: self.view.frame.width / CGFloat(controllerArray.count) * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin * 2)
                 }
                 //**************************拡張ここまで*************************************
             } else if menuItemWidthBasedOnTitleTextWidth {
@@ -435,7 +445,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                 
                 menuItemWidth = itemWidthRect.width
                 
-                menuItemFrame = CGRect(x: totalMenuItemWidthIfDifferentWidths + menuMargin + (menuMargin * index), y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin)
+                menuItemFrame = CGRect(x: totalMenuItemWidthIfDifferentWidths + menuMargin + (menuMargin * index), y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2)
                 
                 totalMenuItemWidthIfDifferentWidths += itemWidthRect.width
                 menuItemWidths.append(itemWidthRect.width)
@@ -447,9 +457,9 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                         startingMenuMargin = 0.0
                     }
                     
-                    menuItemFrame = CGRect(x: startingMenuMargin + menuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - 1.5*menuItemFrameToBottomMargin)
+                    menuItemFrame = CGRect(x: startingMenuMargin + menuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2)
                 } else {
-                    menuItemFrame = CGRect(x: menuItemWidth * index + menuMargin * (index + 1) + startingMenuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - 1.5*menuItemFrameToBottomMargin)
+                    menuItemFrame = CGRect(x: menuItemWidth * index + menuMargin * (index + 1) + startingMenuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2)
                 }
             }
             
@@ -494,11 +504,19 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
             
             // Add menu item view to menu scroll view
             menuScrollView.addSubview(menuItemView)
+            
+            if shouldAddButtonViewIcon {
+                let triangleIcon = UIImageView(frame: CGRect(x: menuItemView.frame.origin.x + menuItemView.frame.width / 2 + menuItemSeparatorWidth, y: menuItemView.frame.height + 11, width: 10, height: 5))
+                triangleIcon.image = UIImage(named: "selected_trialngle")
+                menuScrollView.addSubview(triangleIcon)
+                menuItemView.bottomArrowImage = triangleIcon
+                menuItemView.bottomArrowImage?.isHidden = true
+            }
+            
             menuItems.append(menuItemView)
             
             index += 1
         }
-        
         
         // Set new content size for menu scroll view if needed
         if menuItemWidthBasedOnTitleTextWidth {
@@ -507,6 +525,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
         
         if menuItems.count > 0 {
             self.menuItems[currentPageIndex].backgroundColor = self.selectedMenuItemLabelColor
+            self.menuItems[currentPageIndex].bottomArrowImage?.isHidden = false
         }
         
         // Configure selection indicator view
@@ -532,6 +551,13 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
             self.configureMenuItemWidthBasedOnTitleTextWidthAndCenterMenuItems()
             let leadingAndTrailingMargin = self.getMarginForMenuItemWidthBasedOnTitleTextWidthAndCenterMenuItems()
             selectionIndicatorView.frame = CGRect(x: leadingAndTrailingMargin, y: menuHeight - selectionIndicatorHeight, width: menuItemWidths[0], height: selectionIndicatorHeight)
+        }
+        
+        if shouldAddButtonViewIcon {
+            let downView = UIView(frame: CGRect(x: 0, y: 0, width: menuScrollView.contentSize.width, height: menuScrollView.frame.height - extraBottomViewSize))
+            downView.backgroundColor = viewBackgroundColor
+            self.menuScrollView.insertSubview(downView, at: 0)
+            
         }
     }
     
@@ -796,6 +822,8 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     if self.menuItems[self.lastPageIndex].titleLabel != nil && self.menuItems[self.currentPageIndex].titleLabel != nil {
                         self.menuItems[self.lastPageIndex].backgroundColor = UIColor.clear
                         self.menuItems[self.currentPageIndex].backgroundColor = self.selectedMenuItemLabelColor
+                        self.menuItems[self.lastPageIndex].bottomArrowImage?.isHidden = true
+                        self.menuItems[self.currentPageIndex].bottomArrowImage?.isHidden = false
                     }
                 }
             })
@@ -932,7 +960,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
         
         newVC.willMove(toParentViewController: self)
         
-        newVC.view.frame = CGRect(x: self.view.frame.width * CGFloat(index), y: menuHeight, width: self.view.frame.width, height: self.view.frame.height - menuHeight)
+        newVC.view.frame = CGRect(x: self.view.frame.width * CGFloat(index), y: menuHeight - extraBottomViewSize, width: self.view.frame.width, height: self.view.frame.height - menuHeight + extraBottomViewSize)
         
         self.addChildViewController(newVC)
         self.controllerScrollView.addSubview(newVC.view)
