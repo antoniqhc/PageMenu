@@ -116,6 +116,7 @@ public enum CAPSPageMenuOption {
     case smallLabelSize(CGFloat)
     case extraBottomViewSize(CGFloat)
     case shouldAddButtonViewIcon(Bool)
+    case shouldChangeSelectedItemBackgroundColor(Bool)
     
 }
 
@@ -173,6 +174,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
     open var smallLabelSize: CGFloat = 20.0
     open var extraBottomViewSize: CGFloat = 0.0
     open var shouldAddButtonViewIcon: Bool = false
+    open var shouldChangeSelectedItemBackgroundColor: Bool = false
     
     var currentOrientationIsPortrait : Bool = true
     var pageIndexForOrientationChange : Int = 0
@@ -286,6 +288,8 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     extraBottomViewSize = value
                 case let .shouldAddButtonViewIcon(value):
                     shouldAddButtonViewIcon = value
+                case let .shouldChangeSelectedItemBackgroundColor(value):
+                    shouldChangeSelectedItemBackgroundColor = value
                 }
             }
             
@@ -524,8 +528,13 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
         }
         
         if menuItems.count > 0 {
-            self.menuItems[currentPageIndex].backgroundColor = self.selectedMenuItemLabelColor
-            self.menuItems[currentPageIndex].bottomArrowImage?.isHidden = false
+            
+            if shouldChangeSelectedItemBackgroundColor {
+                self.menuItems[currentPageIndex].backgroundColor = self.selectedMenuItemLabelColor
+                self.menuItems[currentPageIndex].bottomArrowImage?.isHidden = false
+            } else if menuItems[currentPageIndex].titleLabel != nil {
+                menuItems[currentPageIndex].titleLabel!.textColor = selectedMenuItemLabelColor
+            }
         }
         
         // Configure selection indicator view
@@ -819,11 +828,15 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                 
                 // Switch newly selected menu item title label to selected color and old one to unselected color
                 if self.menuItems.count > 0 {
-                    if self.menuItems[self.lastPageIndex].titleLabel != nil && self.menuItems[self.currentPageIndex].titleLabel != nil {
+                    
+                    if self.shouldChangeSelectedItemBackgroundColor {
                         self.menuItems[self.lastPageIndex].backgroundColor = UIColor.clear
                         self.menuItems[self.currentPageIndex].backgroundColor = self.selectedMenuItemLabelColor
                         self.menuItems[self.lastPageIndex].bottomArrowImage?.isHidden = true
                         self.menuItems[self.currentPageIndex].bottomArrowImage?.isHidden = false
+                    } else if self.menuItems[self.lastPageIndex].titleLabel != nil && self.menuItems[self.currentPageIndex].titleLabel != nil {
+                        self.menuItems[self.lastPageIndex].titleLabel!.textColor = self.unselectedMenuItemLabelColor
+                        self.menuItems[self.currentPageIndex].titleLabel!.textColor = self.selectedMenuItemLabelColor
                     }
                 }
             })
