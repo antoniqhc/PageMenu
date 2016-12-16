@@ -117,6 +117,7 @@ public enum CAPSPageMenuOption {
     case extraBottomViewSize(CGFloat)
     case shouldAddButtonViewIcon(Bool)
     case shouldChangeSelectedItemBackgroundColor(Bool)
+    case shouldAddIconBetweenLabels(Bool)
     
 }
 
@@ -175,6 +176,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
     open var extraBottomViewSize: CGFloat = 0.0
     open var shouldAddButtonViewIcon: Bool = false
     open var shouldChangeSelectedItemBackgroundColor: Bool = false
+    open var shouldAddIconBetweenLabels: Bool = false
     
     var currentOrientationIsPortrait : Bool = true
     var pageIndexForOrientationChange : Int = 0
@@ -290,6 +292,8 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     shouldAddButtonViewIcon = value
                 case let .shouldChangeSelectedItemBackgroundColor(value):
                     shouldChangeSelectedItemBackgroundColor = value
+                case let .shouldAddIconBetweenLabels(value):
+                    shouldAddIconBetweenLabels = value
                 }
             }
             
@@ -435,9 +439,9 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                 if menuItemMargin > 0 {
                     let marginSum = menuItemMargin * CGFloat(controllerArray.count + 1)
                     let menuItemWidth = (self.view.frame.width - marginSum) / CGFloat(controllerArray.count)
-                    menuItemFrame = CGRect(x: CGFloat(menuItemMargin * (index + 1)) + menuItemWidth * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin * 2)
+                    menuItemFrame = CGRect(x: CGFloat(menuItemMargin * (index + 1)) + menuItemWidth * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin * 2.2)
                 } else {
-                    menuItemFrame = CGRect(x: self.view.frame.width / CGFloat(controllerArray.count) * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin * 2)
+                    menuItemFrame = CGRect(x: self.view.frame.width / CGFloat(controllerArray.count) * CGFloat(index), y: menuItemFrameToBottomMargin, width: CGFloat(self.view.frame.width) / CGFloat(controllerArray.count), height: menuHeight - menuItemFrameToBottomMargin * 2.2)
                 }
                 //**************************拡張ここまで*************************************
             } else if menuItemWidthBasedOnTitleTextWidth {
@@ -449,7 +453,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                 
                 menuItemWidth = itemWidthRect.width
                 
-                menuItemFrame = CGRect(x: totalMenuItemWidthIfDifferentWidths + menuMargin + (menuMargin * index), y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2)
+                menuItemFrame = CGRect(x: totalMenuItemWidthIfDifferentWidths + menuMargin + (menuMargin * index), y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2.2)
                 
                 totalMenuItemWidthIfDifferentWidths += itemWidthRect.width
                 menuItemWidths.append(itemWidthRect.width)
@@ -461,9 +465,9 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                         startingMenuMargin = 0.0
                     }
                     
-                    menuItemFrame = CGRect(x: startingMenuMargin + menuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2)
+                    menuItemFrame = CGRect(x: startingMenuMargin + menuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2.2)
                 } else {
-                    menuItemFrame = CGRect(x: menuItemWidth * index + menuMargin * (index + 1) + startingMenuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2)
+                    menuItemFrame = CGRect(x: menuItemWidth * index + menuMargin * (index + 1) + startingMenuMargin, y: menuItemFrameToBottomMargin, width: menuItemWidth, height: menuHeight - menuItemFrameToBottomMargin * 2.2)
                 }
             }
             
@@ -510,7 +514,7 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
             menuScrollView.addSubview(menuItemView)
             
             if shouldAddButtonViewIcon {
-                let triangleIcon = UIImageView(frame: CGRect(x: menuItemView.frame.origin.x + menuItemView.frame.width / 2 + menuItemSeparatorWidth, y: menuItemView.frame.height + 11, width: 10, height: 5))
+                let triangleIcon = UIImageView(frame: CGRect(x: menuItemView.frame.origin.x + menuItemView.frame.width / 2 + menuItemSeparatorWidth, y: menuItemView.frame.height + 12, width: 10, height: 5))
                 triangleIcon.image = UIImage(named: "selected_trialngle")
                 menuScrollView.addSubview(triangleIcon)
                 menuItemView.bottomArrowImage = triangleIcon
@@ -599,6 +603,12 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                 }
                 
                 menuItem.frame = CGRect(x: margin, y: 0.0, width: menuItemWidth, height: menuHeight)
+                
+                if shouldAddIconBetweenLabels && index != menuItems.count - 1{
+                    let middleIcon = UIImageView(frame: CGRect(x: menuItem.frame.origin.x + menuItem.frame.width + 3, y: menuScrollView.frame.height / 2 - 7, width: 10, height: 10))
+                    middleIcon.image = UIImage(named: "icn_star")
+                    menuScrollView.addSubview(middleIcon)
+                }
             }
         } else {
             // the menuScrollView.contentSize.width exceeds the view's width, so layout the menu items normally (menuItemWidthBasedOnTitleTextWidth)
@@ -610,7 +620,13 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     menuItemX = menuItems[index-1].frame.maxX + menuMargin
                 }
                 
-                menuItem.frame = CGRect(x: menuItemX, y: 0.0, width: menuItem.bounds.width, height: menuItem.bounds.height)
+                menuItem.frame = CGRect(x: menuItemX, y: 0.0, width: menuItem.bounds.width + 5, height: menuItem.bounds.height)
+                
+                if shouldAddIconBetweenLabels && index != menuItems.count - 1{
+                    let middleIcon = UIImageView(frame: CGRect(x: menuItem.frame.origin.x + menuItem.frame.width, y: menuScrollView.frame.height / 2 - 7, width: 10, height: 10))
+                    middleIcon.image = UIImage(named: "icn_star")
+                    menuScrollView.addSubview(middleIcon)
+                }
             }
         }
     }
