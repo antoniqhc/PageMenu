@@ -874,6 +874,20 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
         menuItems[index].smallLabel?.isHidden = isHidden
     }
     
+    open func changeControllerAtIndex(index: Int, controller: UIViewController, menuIcon: String) {
+        guard menuItems.count > index, controllerArray.count > index else {
+            return
+        }
+        
+        controllerArray[index] = controller
+        menuItemsIcons[index] = menuIcon
+        menuItems[index].titleImage?.image = UIImage(named: menuIcon)
+        menuItems[index].titleLabel?.text = controller.title
+        
+        addPageAtIndex(index)
+
+    }
+    
     // MARK: - Tap gesture recognizer selector
     
     func handleMenuItemTap(_ gestureRecognizer : UITapGestureRecognizer) {
