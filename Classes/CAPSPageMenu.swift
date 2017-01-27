@@ -24,6 +24,8 @@ import UIKit
     
     @objc optional func willMoveToPage(_ controller: UIViewController, index: Int)
     @objc optional func didMoveToPage(_ controller: UIViewController, index: Int)
+    @objc optional func didTapItem(index: Int)
+    
 }
 
 class MenuItemView: UIView {
@@ -946,6 +948,8 @@ open class CAPSPageMenu: UIViewController, UIScrollViewDelegate, UIGestureRecogn
                     itemIndex = Int(rawItemIndex)
                 }
             }
+            
+            delegate?.didTapItem?(index: itemIndex)
             
             if itemIndex >= 0 && itemIndex < controllerArray.count {
                 // Update page if changed
